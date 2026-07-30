@@ -1,0 +1,15 @@
+# Generated benchmark results
+results/*
+!results/.gitkeep
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+
+# Jupyter artifacts
+.ipynb_checkpoints/
+
+# Logs and temporary outputs
+logs/
+outputs/
+*.log
