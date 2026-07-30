@@ -8,7 +8,6 @@ This repository serves two purposes:
 - **Research Platform** – A collection of implementations, experiments, and research projects exploring state-of-the-art AI methods.
 - **Educational Resource** – Open learning materials, reproducible examples, and practical projects designed to help students understand modern AI technologies.
 
----
 
 # Research Areas
 
@@ -32,7 +31,6 @@ This laboratory focuses on modern AI research, including:
 - MLOps
 - Responsible & Ethical AI
 
----
 
 # Repository Structure
 
@@ -50,9 +48,8 @@ AI-Lab/
 ├── scripts/           # Utility scripts
 ├── docs/              # Documentation
 └── requirements.txt
-```
 
----
+
 
 # Research Philosophy
 
@@ -65,7 +62,6 @@ The goal of this laboratory is to:
 - Encourage reproducible scientific research.
 - Bridge academic research with practical applications.
 
----
 
 # Current Research Roadmap
 
@@ -80,7 +76,6 @@ The goal of this laboratory is to:
 - Multimodal AI
 - Scientific Machine Learning
 
----
 
 # For Students
 
@@ -95,7 +90,6 @@ Students are encouraged to:
 
 Learning AI is most effective through experimentation and implementation.
 
----
 
 # Technology Stack
 
@@ -114,7 +108,6 @@ Learning AI is most effective through experimentation and implementation.
 - Docker
 - Git
 
----
 
 # Development Environment
 
@@ -124,13 +117,11 @@ Learning AI is most effective through experimentation and implementation.
 - Hugging Face ecosystem
 - Linux development environment
 
----
 
 # License
 
 MIT License
 
----
 
 ## Author
 
