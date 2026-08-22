@@ -220,3 +220,4 @@ __marimo__/
 # AI Lab
 models/
 datasets/
+.venv-migrated-broken/
