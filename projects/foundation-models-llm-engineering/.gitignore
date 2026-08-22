@@ -13,3 +13,7 @@ __pycache__/
 logs/
 outputs/
 *.log
+
+# Keep benchmark model configuration files
+!configs/models/
+!configs/models/*.yaml

@@ -1,0 +1,39 @@
+experiment:
+  name: mistral7b_v03_bf16
+  seed: 42
+  warmup_runs: 1
+  measured_runs: 3
+
+model:
+  name: mistralai/Mistral-7B-Instruct-v0.3
+  dtype: bfloat16
+  device_map: auto
+
+generation:
+  max_new_tokens: 256
+  do_sample: false
+
+system_prompt: >-
+  You are an AI engineering assistant. Provide practical,
+  accurate, and concise responses.
+
+prompts:
+  - id: business_applications
+    text: >-
+      Explain how organizations can use open-weight language models
+      to solve real-world business problems.
+
+  - id: healthcare
+    text: >-
+      Describe three responsible applications of open-weight language
+      models in healthcare and identify the main risks.
+
+  - id: education
+    text: >-
+      Explain how a university could deploy an open-weight language
+      model as a student learning assistant.
+
+output:
+  directory: results
+  json_filename: mistral7b_v03_bf16.json
+  csv_filename: mistral7b_v03_bf16.csv
