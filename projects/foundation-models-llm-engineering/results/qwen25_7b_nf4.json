@@ -1,0 +1,118 @@
+{
+  "experiment": {
+    "name": "qwen25_7b_nf4",
+    "seed": 42,
+    "warmup_runs": 1,
+    "measured_runs": 3,
+    "completed_at_utc": "2026-08-26T06:46:27.285358+00:00"
+  },
+  "environment": {
+    "python_version": "3.12.3",
+    "torch_version": "2.8.0+cu128",
+    "transformers_version": "5.14.1",
+    "cuda_runtime_version": "12.8",
+    "gpu_name": "NVIDIA RTX A6000",
+    "gpu_total_memory_gb": 44.4219,
+    "gpu_compute_capability": [
+      8,
+      6
+    ],
+    "gpu_multiprocessor_count": 84
+  },
+  "model": {
+    "name": "Qwen/Qwen2.5-7B-Instruct",
+    "dtype": "bfloat16",
+    "load_seconds": 58.95955737121403
+  },
+  "generation": {
+    "max_new_tokens": 256,
+    "do_sample": false
+  },
+  "summary": {
+    "mean_generation_seconds": 6.494583500031796,
+    "mean_tokens_per_second": 39.41994855852251
+  },
+  "prompts": [
+    {
+      "prompt_id": "business_applications",
+      "prompt": "Explain how organizations can use open-weight language models to solve real-world business problems.",
+      "run_count": 3,
+      "input_tokens": 46,
+      "generated_tokens": [
+        256,
+        256,
+        256
+      ],
+      "latency_seconds": {
+        "mean": 6.538120995896558,
+        "median": 6.526303629856557,
+        "min": 6.507946643978357,
+        "max": 6.58011271385476,
+        "p95": 6.57473180545494
+      },
+      "tokens_per_second": {
+        "mean": 39.15583742541067,
+        "median": 39.22587953598271,
+        "min": 38.905108640613264,
+        "max": 39.336524099636016
+      },
+      "peak_vram_allocated_gb": 5.204009056091309,
+      "peak_vram_reserved_gb": 5.35546875,
+      "response": "Organizations can leverage open-weight language models to solve real-world business problems in several ways:\n\n1. **Customer Support**: Implement chatbots using language models to handle customer inquiries, providing 24/7 support and improving response times. This reduces the workload on human agents and enhances customer satisfaction.\n\n2. **Content Generation**: Use language models to automate content creation for blogs, social media posts, product descriptions, and more. This saves time and resources while maintaining a consistent brand voice.\n\n3. **Data Analysis**: Employ language models to analyze unstructured data like customer reviews or social media sentiment. This helps in understanding market trends, customer preferences, and identifying areas for improvement.\n\n4. **Language Translation**: Utilize pre-trained language models for translating documents, websites, or customer communications into multiple languages, facilitating global communication and expanding market reach.\n\n5. **Personalization**: Develop personalized marketing campaigns by analyzing customer data and generating tailored messages. This improves engagement and conversion rates.\n\n6. **Risk Management**: Use language models to analyze legal documents, contracts, or financial reports for compliance and risk assessment, ensuring adherence to regulations and minimizing legal issues.\n\n7. **Research and Development**: Leverage language models to assist in summarizing large volumes of research papers, patent filings, or industry reports"
+    },
+    {
+      "prompt_id": "healthcare",
+      "prompt": "Describe three responsible applications of open-weight language models in healthcare and identify the main risks.",
+      "run_count": 3,
+      "input_tokens": 46,
+      "generated_tokens": [
+        256,
+        256,
+        256
+      ],
+      "latency_seconds": {
+        "mean": 6.481383556034416,
+        "median": 6.505864734295756,
+        "min": 6.4147835317999125,
+        "max": 6.52350240200758,
+        "p95": 6.521738635236398
+      },
+      "tokens_per_second": {
+        "mean": 39.49988373205586,
+        "median": 39.34911198668065,
+        "min": 39.24272334462805,
+        "max": 39.907815864858875
+      },
+      "peak_vram_allocated_gb": 5.204009056091309,
+      "peak_vram_reserved_gb": 5.35546875,
+      "response": "### Responsible Applications of Open-Weight Language Models in Healthcare\n\n1. **Clinical Documentation Assistance:**\n   - **Application:** Language models can assist clinicians in generating accurate and comprehensive clinical notes by suggesting relevant medical terminology, diagnoses, and procedures.\n   - **Benefits:** Improves documentation quality, reduces errors, and enhances patient care coordination.\n\n2. **Patient Education and Communication:**\n   - **Application:** Using natural language processing (NLP) to generate personalized health information and educational materials for patients.\n   - **Benefits:** Enhances patient understanding of their conditions, treatment plans, and self-care practices, leading to better health outcomes and patient engagement.\n\n3. **Drug Interaction Detection:**\n   - **Application:** Analyzing electronic health records (EHRs) to identify potential drug interactions or adverse events.\n   - **Benefits:** Helps in early detection of medication-related issues, improving patient safety and reducing hospital readmissions.\n\n### Main Risks\n\n1. **Data Privacy and Security:**\n   - **Risk:** Open-weight language models often require access to sensitive patient data, which poses significant privacy and security risks if not properly managed.\n   - **Mitigation:** Implement robust encryption, anonymization techniques, and strict access controls to protect patient data.\n\n2. **Bias and"
+    },
+    {
+      "prompt_id": "education",
+      "prompt": "Explain how a university could deploy an open-weight language model as a student learning assistant.",
+      "run_count": 3,
+      "input_tokens": 47,
+      "generated_tokens": [
+        256,
+        256,
+        256
+      ],
+      "latency_seconds": {
+        "mean": 6.464245948164414,
+        "median": 6.458640245255083,
+        "min": 6.415820655878633,
+        "max": 6.518276943359524,
+        "p95": 6.51231327354908
+      },
+      "tokens_per_second": {
+        "mean": 39.60412451810101,
+        "median": 39.63682606227734,
+        "min": 39.27418276708836,
+        "max": 39.90136472493733
+      },
+      "peak_vram_allocated_gb": 5.204062461853027,
+      "peak_vram_reserved_gb": 5.35546875,
+      "response": "Deploying an open-source language model as a student learning assistant at a university involves several steps to ensure effectiveness and integration into the educational environment. Here’s a practical approach:\n\n### 1. **Selection of Language Model**\n   - **Choose an Appropriate Model**: Select an open-source language model that aligns with the university's needs, such as those from Hugging Face, TensorFlow, or PyTorch. Consider factors like accuracy, training data relevance, and ease of integration.\n   - **Evaluate Capabilities**: Assess the model’s ability to handle various tasks relevant to education, such as summarization, question answering, text generation, and translation.\n\n### 2. **Integration into Learning Management Systems (LMS)**\n   - **API Integration**: Develop or use existing APIs to integrate the language model into the university’s LMS (e.g., Moodle, Canvas). This allows students to interact with the model through familiar interfaces.\n   - **Custom Plugins**: Create custom plugins or extensions for the LMS that enable students to ask questions, receive feedback, and engage in interactive learning activities using the language model.\n\n### 3. **Development of Interactive Tools**\n   - **Question-Answering System**: Implement a system where students can input questions related to course material,"
+    }
+  ]
+}

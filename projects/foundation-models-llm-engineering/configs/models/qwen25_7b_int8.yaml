@@ -1,0 +1,30 @@
+experiment:
+  name: qwen25_7b_int8
+  seed: 42
+  warmup_runs: 1
+  measured_runs: 3
+model:
+  name: Qwen/Qwen2.5-7B-Instruct
+  dtype: bfloat16
+  device_map: auto
+  quantization:
+    mode: int8
+generation:
+  max_new_tokens: 256
+  do_sample: false
+system_prompt: You are an AI engineering assistant. Provide practical, accurate, and
+  concise responses.
+prompts:
+- id: business_applications
+  text: Explain how organizations can use open-weight language models to solve real-world
+    business problems.
+- id: healthcare
+  text: Describe three responsible applications of open-weight language models in
+    healthcare and identify the main risks.
+- id: education
+  text: Explain how a university could deploy an open-weight language model as a student
+    learning assistant.
+output:
+  directory: results
+  json_filename: qwen25_7b_int8.json
+  csv_filename: qwen25_7b_int8.csv

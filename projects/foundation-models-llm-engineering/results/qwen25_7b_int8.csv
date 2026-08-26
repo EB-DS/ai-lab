@@ -1,0 +1,10 @@
+experiment,model,prompt_id,run,input_tokens,generated_tokens,generation_seconds,tokens_per_second,peak_vram_allocated_gb,peak_vram_reserved_gb
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,business_applications,1,46,256,26.348344,9.715981,8.21806,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,business_applications,2,46,256,25.550785,10.019262,8.21806,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,business_applications,3,46,256,25.776874,9.931383,8.21806,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,healthcare,1,46,256,25.503219,10.037948,8.209406,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,healthcare,2,46,256,24.87869,10.289931,8.209406,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,healthcare,3,46,256,24.912466,10.27598,8.209406,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,education,1,47,256,25.544982,10.021538,8.21892,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,education,2,47,256,25.883095,9.890625,8.21892,8.460938
+qwen25_7b_int8,Qwen/Qwen2.5-7B-Instruct,education,3,47,256,26.912109,9.512446,8.21892,8.460938

@@ -99,6 +99,9 @@ def main() -> None:
             "device_map",
             "auto",
         ),
+        quantization=model_config.get(
+            "quantization",
+        ),
     )
 
     all_run_rows = []
