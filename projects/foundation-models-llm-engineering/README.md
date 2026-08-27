@@ -359,6 +359,124 @@ It means that **under this particular hardware environment, prompt set, generati
 
 ---
 
+
+## Quantization Experiment
+
+After comparing Qwen2.5-7B, Phi-4-mini, and Mistral-7B-v0.3, the next question was:
+
+> Can a strong model be made significantly more memory-efficient without sacrificing practical inference performance?
+
+To study this, Qwen2.5-7B-Instruct was evaluated in three numerical formats on the same NVIDIA RTX A6000:
+
+- **BF16** — the original 16-bit baseline
+- **INT8** — 8-bit quantization using bitsandbytes
+- **NF4** — 4-bit NormalFloat quantization using bitsandbytes
+
+The model, prompts, GPU, generation settings, and benchmark procedure were kept consistent so that precision/quantization was the primary experimental variable.
+
+### Quantization Benchmark Configuration
+
+The official benchmark used:
+
+- 3 prompts
+- 1 warm-up run per prompt
+- 3 measured runs per prompt
+- deterministic generation
+- maximum generation length of 256 tokens
+- NVIDIA RTX A6000
+- PyTorch 2.8.0 with CUDA 12.8
+- bitsandbytes 0.50.1
+
+### Quantization Results
+
+| Mode | Mean Generation Time | Mean Throughput | Peak VRAM Allocated |
+|---|---:|---:|---:|
+| BF16 | 7.3072 s | 35.0341 tokens/s | 14.2114 GB |
+| INT8 | 25.7012 s | 9.9661 tokens/s | 8.2189 GB |
+| **NF4** | **6.4946 s** | **39.4199 tokens/s** | **5.2041 GB** |
+
+### NF4 Compared with BF16
+
+NF4 produced the strongest deployment-efficiency result.
+
+Compared with BF16, NF4 achieved approximately:
+
+- **12.52% higher throughput**
+- **11.12% lower generation latency**
+- **63.38% lower peak GPU-memory usage**
+
+In simple terms, the model required roughly one-third of the peak GPU memory while generating tokens slightly faster under the tested conditions.
+
+This makes NF4 particularly interesting for:
+
+- memory-constrained GPUs
+- lower-cost inference systems
+- local deployment
+- multi-model environments
+- systems where GPU capacity is more important than maximum numerical precision
+
+### INT8 Result
+
+INT8 reduced GPU-memory requirements, but it was substantially slower than BF16 in this experiment.
+
+Its mean throughput was approximately:
+
+**9.97 tokens/second**
+
+compared with:
+
+**35.03 tokens/second for BF16**
+
+The INT8 path therefore demonstrated an important engineering lesson:
+
+> **Lower numerical precision does not automatically mean faster inference.**
+
+Runtime performance depends on factors such as:
+
+- GPU architecture
+- quantization kernels
+- datatype conversions
+- library implementation
+- memory movement
+- model architecture
+
+During INT8 inference, bitsandbytes also reported internal conversion of BF16 inputs to FP16 for its 8-bit matrix operations.
+
+The result should therefore be interpreted as a property of this specific hardware/software configuration rather than a universal statement about INT8 inference.
+
+### Why Quantization Matters
+
+Quantization is important because GPU memory is one of the main practical constraints when deploying large language models.
+
+Reducing VRAM usage can allow organizations to:
+
+- use less expensive hardware
+- run larger models on existing GPUs
+- host multiple models on the same machine
+- increase deployment flexibility
+- reduce infrastructure requirements
+
+The experiment therefore connects model optimization directly to real-world deployment decisions.
+
+### Important Limitation
+
+This phase primarily measured:
+
+- latency
+- throughput
+- GPU-memory consumption
+
+It does **not yet establish that NF4 preserves the same response quality as BF16**.
+
+A dedicated quantized-output quality evaluation is still required before concluding that NF4 is superior across both efficiency and response quality.
+
+The correct conclusion from this phase is:
+
+> **NF4 provided the strongest measured inference-efficiency result, while response-quality preservation remains a separate evaluation question.**
+
+---
+
+
 ## Jupyter Analysis
 
 The main analysis notebook is:
@@ -541,7 +659,7 @@ Model selection is a trade-off among:
 
 ## Key Findings
 
-The experiment produced three major findings.
+The project produced four major findings.
 
 ### Finding 1 — Qwen2.5-7B Produced the Highest Evaluated Quality
 
@@ -551,9 +669,9 @@ Qwen2.5-7B achieved an overall quality score of approximately:
 
 This was the highest score among the three evaluated models.
 
-### Finding 2 — Phi-4-mini Was the Most Efficient
+### Finding 2 — Phi-4-mini Was the Most Efficient Model in the BF16 Comparison
 
-Phi-4-mini achieved:
+Among the three models evaluated using BF16, Phi-4-mini achieved:
 
 - the highest throughput
 - the lowest generation latency
@@ -561,11 +679,52 @@ Phi-4-mini achieved:
 
 Its peak allocated VRAM was approximately **7.19 GB**, compared with approximately **14.21 GB** for Qwen2.5-7B.
 
-### Finding 3 — Phi-4-mini Offered the Strongest Quality-Efficiency Balance
+This made Phi-4-mini the strongest overall quality-efficiency trade-off in the original multi-model comparison.
 
-Although Qwen achieved the highest quality score, Phi-4-mini remained relatively close in quality while providing substantial performance and memory advantages.
+### Finding 3 — Quantization Dramatically Reduced Qwen2.5-7B Memory Requirements
 
-For resource-constrained or latency-sensitive applications, this may make Phi-4-mini the more practical deployment choice.
+Qwen2.5-7B was subsequently evaluated using BF16, INT8, and NF4.
+
+The measured peak allocated GPU memory was:
+
+| Mode | Peak VRAM |
+|---|---:|
+| BF16 | 14.2114 GB |
+| INT8 | 8.2189 GB |
+| NF4 | 5.2041 GB |
+
+INT8 reduced peak allocated VRAM by approximately **42.17%** relative to BF16.
+
+NF4 reduced peak allocated VRAM by approximately **63.38%**.
+
+This demonstrates how quantization can substantially change the hardware requirements of the same model.
+
+### Finding 4 — Lower Precision Did Not Automatically Mean Faster Inference
+
+NF4 achieved approximately:
+
+- **39.42 tokens/second**
+- **6.49 seconds mean generation time**
+
+compared with approximately:
+
+- **35.03 tokens/second**
+- **7.31 seconds mean generation time**
+
+for BF16.
+
+INT8, however, achieved only approximately:
+
+- **9.97 tokens/second**
+- **25.70 seconds mean generation time**
+
+under the tested configuration.
+
+This is an important engineering result:
+
+> **Quantization can reduce memory consumption without guaranteeing higher inference speed.**
+
+Actual performance depends on the interaction between the model, GPU architecture, numerical format, kernels, and software implementation.
 
 ---
 
@@ -575,18 +734,21 @@ The results should be interpreted within the scope of this experiment.
 
 Important limitations include:
 
-- only three models were evaluated
+- only three models were included in the multi-model comparison
+- only one model, Qwen2.5-7B, was evaluated in the quantization experiment
 - only three prompt categories were used
-- the quality sample contained only nine responses
+- the original quality sample contained only nine responses
 - quality scoring used a manually defined rubric
 - experiments were conducted on one GPU architecture
-- only BF16 inference was evaluated in this phase
+- the quantization phase focused primarily on latency, throughput, and GPU memory
+- BF16, INT8, and NF4 response quality has not yet been evaluated using the same dedicated quality benchmark
 - standardized benchmark datasets were not included
 - statistical quality evaluation was limited by the small prompt set
-- model load times can be affected by local caching and previous downloads
+- model load times can be affected by caching, storage, and previous downloads
 - the benchmark focused on single-model local inference rather than production-scale concurrent serving
+- quantization performance may differ with other GPUs, CUDA versions, libraries, kernels, and model architectures
 
-Therefore, the results should not be interpreted as proving that one model is universally superior.
+Therefore, the results should not be interpreted as proving that one model or numerical format is universally superior.
 
 They describe performance **under the specific experimental conditions used in this project**.
 
@@ -594,32 +756,36 @@ They describe performance **under the specific experimental conditions used in t
 
 ## Next Steps
 
-Potential extensions include:
+The most useful extensions are now:
 
-- 8-bit quantization
-- 4-bit quantization
-- comparison of BF16 and quantized inference
-- larger prompt suites
-- standardized evaluation datasets
-- automated quality evaluation
-- additional open-weight models
-- longer-context experiments
-- batch-size experiments
-- concurrent-user inference testing
-- cost-efficiency analysis
-- energy-efficiency analysis
-- local API serving
-- browser-based model playground
-- benchmark dashboard
-- deployment recommendations
-- educational notebooks
-- final research report
+- evaluate BF16, INT8, and NF4 response quality using the same rubric
+- expand the prompt suite
+- add standardized evaluation datasets
+- automate more of the quality-evaluation workflow
+- evaluate additional open-weight models
+- test longer context lengths
+- test different batch sizes
+- test concurrent-user inference
+- analyze cost per generated token
+- investigate energy efficiency
+- expose selected models through a local API
+- build a simple browser-based model playground
+- create a benchmark dashboard
+- develop deployment recommendations for different application requirements
+- expand the educational notebook
+- prepare a final research-style report
+
+The immediate experimental priority is the **quantized quality comparison**.
+
+That would answer the remaining question:
+
+> Does the large memory reduction achieved by NF4 come with a meaningful response-quality trade-off?
 
 ---
 
 ## Educational Value
 
-This project is also intended as a teaching example.
+This project is intended not only as a benchmark but also as a teaching example.
 
 Students can use it to understand the difference between simply **using an AI model** and **engineering an AI system**.
 
@@ -637,10 +803,14 @@ The project demonstrates how to:
 - detect experimental problems such as truncation
 - design a quality rubric
 - separate quality testing from performance testing
+- compare numerical precision and quantization strategies
+- distinguish memory savings from speed improvements
+- perform smoke tests before expensive experiments
+- troubleshoot GPU and CUDA environments
+- recover experiments using Git and GitHub
 - visualize model trade-offs
 - interpret experimental results
 - document limitations
-- use Git and GitHub for reproducibility
 - make evidence-based deployment decisions
 
 ---
@@ -649,36 +819,73 @@ The project demonstrates how to:
 
 Imagine that three students are asked to complete the same assignment.
 
-One student produces the best answer but takes more resources.
+One produces the highest-quality answer.
 
-Another produces an almost equally good answer much faster and with fewer resources.
+Another produces an almost equally good answer faster and using fewer resources.
 
-The third produces a reasonable answer but is neither the fastest nor the highest scoring.
+The third produces a reasonable answer but requires a different balance of time and resources.
 
-Choosing an LLM is similar.
+That is similar to our first experiment: **choosing between different language models**.
 
-We should not ask only:
+We then asked a second question.
 
-> "Which model gives the best answer?"
+Suppose we take one of those students and ask them to carry their books in three different ways:
 
-We should also ask:
+- a normal large bag
+- a smaller compressed bag
+- a very compact bag
 
-> "How fast is it?"
+The contents are based on the same underlying model, but the amount of space required to carry them changes.
+
+That is roughly the idea behind **quantization**.
+
+In our experiment, NF4 allowed Qwen2.5-7B to use much less GPU memory while maintaining strong inference performance.
+
+INT8 also reduced memory, but unexpectedly ran much slower.
+
+This teaches an important lesson:
+
+> **Smaller does not automatically mean faster.**
+
+AI engineers therefore need to ask several questions:
+
+> "How good are the answers?"
+
+> "How fast does the model generate?"
 
 > "How much GPU memory does it require?"
 
-> "How much does that performance cost?"
+> "Can quantization reduce the hardware requirement?"
 
-> "Is the small improvement in quality worth the additional computing resources?"
+> "Does compression affect answer quality?"
 
-These are the types of questions AI engineers need to answer before deploying models in real applications.
+> "How much does deployment cost?"
+
+These are the kinds of questions that turn an AI demonstration into an engineering experiment.
 
 ---
 
 ## Current Conclusion
 
-Under the tested NVIDIA RTX A6000 environment, prompt set, BF16 generation settings, and rubric-based quality evaluation:
+Under the tested NVIDIA RTX A6000 environment, this project produced two complementary conclusions.
 
-> **Qwen2.5-7B achieved the highest response-quality score, while Phi-4-mini provided substantially better throughput, latency, and GPU-memory efficiency. Phi-4-mini therefore demonstrated the strongest overall quality-efficiency trade-off among the three evaluated models.**
+### Model Selection
 
-The main lesson is that **model selection should be based on the requirements of the application rather than model size or a single benchmark score alone**.
+In the original BF16 multi-model comparison:
+
+> **Qwen2.5-7B achieved the highest evaluated response-quality score, while Phi-4-mini provided substantially better throughput, latency, and GPU-memory efficiency. Phi-4-mini therefore demonstrated the strongest overall quality-efficiency trade-off among the three evaluated models.**
+
+### Model Optimization
+
+When Qwen2.5-7B was subsequently evaluated using BF16, INT8, and NF4:
+
+> **NF4 provided the strongest measured inference-efficiency result, reducing peak allocated GPU memory by approximately 63% relative to BF16 while also producing slightly higher throughput and lower generation latency under the tested configuration.**
+
+INT8 also reduced memory consumption, but its inference throughput was substantially lower in this environment.
+
+The quantization experiment does **not yet establish that NF4 preserves the same response quality as BF16**. That remains the most important next evaluation.
+
+The broader lesson from Project 1 is:
+
+> **Model deployment should be treated as a multi-objective engineering problem involving quality, speed, memory, hardware requirements, and cost—not as a search for the largest model or the highest single benchmark score.**
+
