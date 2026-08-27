@@ -8,7 +8,10 @@ from .schemas import ChatCompletionRequest
 
 
 settings = load_settings()
-backend = create_backend(settings.backend)
+backend = create_backend(
+    settings.backend,
+    settings.model_name,
+)
 
 app = FastAPI(
     title="Production LLM Serving API",
