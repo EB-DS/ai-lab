@@ -1,5 +1,7 @@
 import time
 from abc import ABC, abstractmethod
+from threading import Thread
+from collections.abc import Iterator
 
 
 class LLMBackend(ABC):
@@ -13,6 +15,19 @@ class LLMBackend(ABC):
         temperature: float,
     ) -> dict:
         raise NotImplementedError
+
+    def stream_generate(
+        self,
+        messages: list[dict[str, str]],
+        max_tokens: int,
+        temperature: float,
+    ) -> Iterator[str]:
+        result = self.generate(
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        yield result["text"]
 
 
 class MockLLMBackend(LLMBackend):
@@ -71,6 +86,7 @@ class TransformersBackend(LLMBackend):
             from transformers import (
                 AutoModelForCausalLM,
                 AutoTokenizer,
+                TextIteratorStreamer,
             )
         except ImportError as exc:
             raise RuntimeError(
@@ -95,6 +111,7 @@ class TransformersBackend(LLMBackend):
             )
 
         self.torch = torch
+        self.TextIteratorStreamer = TextIteratorStreamer
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_name,
@@ -167,6 +184,58 @@ class TransformersBackend(LLMBackend):
             "prompt_tokens": input_tokens,
             "completion_tokens": len(generated),
         }
+
+
+    def stream_generate(
+        self,
+        messages: list[dict[str, str]],
+        max_tokens: int,
+        temperature: float,
+    ) -> Iterator[str]:
+        formatted = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+
+        inputs = self.tokenizer(
+            formatted,
+            return_tensors="pt",
+        )
+
+        inputs = {
+            key: value.to(self.device)
+            for key, value in inputs.items()
+        }
+
+        streamer = self.TextIteratorStreamer(
+            self.tokenizer,
+            skip_prompt=True,
+            skip_special_tokens=True,
+        )
+
+        generation_kwargs = {
+            **inputs,
+            "streamer": streamer,
+            "max_new_tokens": max_tokens,
+            "do_sample": temperature > 0,
+        }
+
+        if temperature > 0:
+            generation_kwargs["temperature"] = temperature
+
+        thread = Thread(
+            target=self.model.generate,
+            kwargs=generation_kwargs,
+            daemon=True,
+        )
+        thread.start()
+
+        for text_chunk in streamer:
+            if text_chunk:
+                yield text_chunk
+
+        thread.join()
 
 
 def create_backend(

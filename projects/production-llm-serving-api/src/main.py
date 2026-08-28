@@ -1,6 +1,8 @@
+import json
 import uuid
 
 from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
 
 from .backend import create_backend
 from .config import load_settings
@@ -60,6 +62,67 @@ def chat_completion(request: ChatCompletionRequest):
         }
         for message in request.messages
     ]
+
+    if request.stream:
+        completion_id = f"chatcmpl-{uuid.uuid4().hex[:12]}"
+
+        def event_stream():
+            role_chunk = {
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "model": request.model,
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {"role": "assistant"},
+                        "finish_reason": None,
+                    }
+                ],
+            }
+            yield f"data: {json.dumps(role_chunk)}\n\n"
+
+            for text_chunk in backend.stream_generate(
+                messages=messages,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+            ):
+                chunk = {
+                    "id": completion_id,
+                    "object": "chat.completion.chunk",
+                    "model": request.model,
+                    "choices": [
+                        {
+                            "index": 0,
+                            "delta": {"content": text_chunk},
+                            "finish_reason": None,
+                        }
+                    ],
+                }
+                yield f"data: {json.dumps(chunk)}\n\n"
+
+            final_chunk = {
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "model": request.model,
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {},
+                        "finish_reason": "stop",
+                    }
+                ],
+            }
+            yield f"data: {json.dumps(final_chunk)}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return StreamingResponse(
+            event_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     result = backend.generate(
         messages=messages,

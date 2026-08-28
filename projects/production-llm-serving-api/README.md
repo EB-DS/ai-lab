@@ -113,13 +113,12 @@ This is an important Project 2 milestone because the same API contract originall
 
 The next milestones are:
 
-1. Add streaming responses
-2. Improve model readiness and startup handling
-3. Add structured inference error handling
-4. Test concurrent requests
-5. Benchmark API latency and throughput
-6. Evaluate quantized serving configurations
-7. Add production monitoring and observability
+1. Improve model readiness and startup handling
+2. Add structured inference error handling
+3. Test concurrent requests
+4. Benchmark API latency and throughput
+5. Evaluate quantized serving configurations
+6. Add production monitoring and observability
 
 ## Token Usage Accounting
 
@@ -141,3 +140,17 @@ A real GPU-backed request using `Qwen/Qwen2.5-7B-Instruct` produced:
 The mock backend intentionally returns `null` token counts because it does not run a tokenizer or language model.
 
 This milestone provides usage metadata needed for observability, benchmarking, capacity planning, and future usage-based accounting.
+
+## Streaming LLM Responses
+
+The chat completions endpoint now supports incremental Server-Sent Events (SSE) streaming through the `stream` request parameter.
+
+When `stream` is `false`, the existing non-streaming JSON response remains unchanged. When `stream` is `true`, the API returns `text/event-stream` and progressively emits OpenAI-style `chat.completion.chunk` events.
+
+The streaming architecture uses Hugging Face `TextIteratorStreamer` with model generation running in a background thread. Generated text is yielded incrementally to FastAPI and delivered to the client through `StreamingResponse`.
+
+A real GPU-backed streaming test was successfully completed with `Qwen/Qwen2.5-7B-Instruct`. The response arrived as multiple incremental content chunks and terminated with a final chunk containing `finish_reason: stop`, followed by the SSE marker `data: [DONE]`.
+
+Automated API coverage now includes streaming behavior, and the full test suite passes 6 tests.
+
+This milestone reduces perceived response latency and establishes the foundation for interactive chat applications and production-compatible streaming clients.

@@ -90,3 +90,33 @@ def test_invalid_max_tokens():
     )
 
     assert response.status_code == 422
+
+def test_stream_chat_completion():
+    with client.stream(
+        "POST",
+        "/v1/chat/completions",
+        json={
+            "model": "local-llm",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Hello streaming",
+                }
+            ],
+            "max_tokens": 32,
+            "temperature": 0,
+            "stream": True,
+        },
+    ) as response:
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith(
+            "text/event-stream"
+        )
+
+        body = "".join(response.iter_text())
+
+    assert '"object": "chat.completion.chunk"' in body
+    assert '"role": "assistant"' in body
+    assert "Hello streaming" in body
+    assert '"finish_reason": "stop"' in body
+    assert "data: [DONE]" in body
