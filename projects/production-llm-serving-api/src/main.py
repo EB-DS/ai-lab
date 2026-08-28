@@ -1,8 +1,10 @@
 import json
 import uuid
+from contextlib import asynccontextmanager
+from threading import Thread
 
-from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from .backend import create_backend
 from .config import load_settings
@@ -10,14 +12,50 @@ from .schemas import ChatCompletionRequest
 
 
 settings = load_settings()
-backend = create_backend(
-    settings.backend,
-    settings.model_name,
-)
+
+backend = None
+backend_status = "loading"
+backend_error = None
+
+
+def load_backend():
+    global backend
+    global backend_status
+    global backend_error
+
+    try:
+        backend = create_backend(
+            settings.backend,
+            settings.model_name,
+        )
+        backend_status = "ready"
+        backend_error = None
+    except Exception as exc:
+        backend = None
+        backend_status = "failed"
+        backend_error = str(exc)
+
+
+if settings.backend == "mock":
+    load_backend()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if settings.backend != "mock" and backend is None:
+        thread = Thread(
+            target=load_backend,
+            daemon=True,
+        )
+        thread.start()
+
+    yield
+
 
 app = FastAPI(
     title="Production LLM Serving API",
-    version="0.4.0",
+    version="0.5.0",
+    lifespan=lifespan,
 )
 
 
@@ -33,10 +71,29 @@ def health():
     return {
         "status": "ok",
         "service": "production-llm-serving-api",
-        "version": "0.4.0",
-        "backend": backend.name,
+        "version": "0.5.0",
+        "backend": settings.backend,
         "model": settings.model_name,
+        "backend_status": backend_status,
     }
+
+
+@app.get("/readiness")
+def readiness():
+    payload = {
+        "status": backend_status,
+        "backend": settings.backend,
+        "model": settings.model_name,
+        "error": backend_error,
+    }
+
+    if backend_status != "ready":
+        return JSONResponse(
+            status_code=503,
+            content=payload,
+        )
+
+    return payload
 
 
 @app.get("/v1/models")
@@ -53,8 +110,23 @@ def list_models():
     }
 
 
+def get_ready_backend():
+    if backend is None or backend_status != "ready":
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "model_not_ready",
+                "status": backend_status,
+            },
+        )
+
+    return backend
+
+
 @app.post("/v1/chat/completions")
 def chat_completion(request: ChatCompletionRequest):
+    active_backend = get_ready_backend()
+
     messages = [
         {
             "role": message.role,
@@ -81,7 +153,7 @@ def chat_completion(request: ChatCompletionRequest):
             }
             yield f"data: {json.dumps(role_chunk)}\n\n"
 
-            for text_chunk in backend.stream_generate(
+            for text_chunk in active_backend.stream_generate(
                 messages=messages,
                 max_tokens=request.max_tokens,
                 temperature=request.temperature,
@@ -124,7 +196,7 @@ def chat_completion(request: ChatCompletionRequest):
             },
         )
 
-    result = backend.generate(
+    result = active_backend.generate(
         messages=messages,
         max_tokens=request.max_tokens,
         temperature=request.temperature,
@@ -160,6 +232,6 @@ def chat_completion(request: ChatCompletionRequest):
                 result["latency_seconds"],
                 6,
             ),
-            "backend": backend.name,
+            "backend": active_backend.name,
         },
     }

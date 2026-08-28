@@ -120,3 +120,14 @@ def test_stream_chat_completion():
     assert "Hello streaming" in body
     assert '"finish_reason": "stop"' in body
     assert "data: [DONE]" in body
+
+def test_readiness():
+    response = client.get("/readiness")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "ready"
+    assert data["backend"] == "mock"
+    assert data["model"] == "local-llm"

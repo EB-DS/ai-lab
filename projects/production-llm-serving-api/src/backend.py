@@ -7,6 +7,10 @@ from collections.abc import Iterator
 class LLMBackend(ABC):
     name: str
 
+    @property
+    def is_ready(self) -> bool:
+        return True
+
     @abstractmethod
     def generate(
         self,
@@ -80,6 +84,7 @@ class TransformersBackend(LLMBackend):
         self.model_name = model_name
         self.dtype = dtype
         self.device_map = device_map
+        self._is_ready = False
 
         try:
             import torch
@@ -128,6 +133,12 @@ class TransformersBackend(LLMBackend):
         self.device = next(
             self.model.parameters()
         ).device
+
+        self._is_ready = True
+
+    @property
+    def is_ready(self) -> bool:
+        return self._is_ready
 
     def generate(
         self,
