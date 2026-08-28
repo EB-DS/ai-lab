@@ -113,11 +113,31 @@ This is an important Project 2 milestone because the same API contract originall
 
 The next milestones are:
 
-1. Return real prompt, completion, and total token counts
-2. Add streaming responses
-3. Improve model readiness and startup handling
-4. Add structured inference error handling
-5. Test concurrent requests
-6. Benchmark API latency and throughput
-7. Evaluate quantized serving configurations
-8. Add production monitoring and observability
+1. Add streaming responses
+2. Improve model readiness and startup handling
+3. Add structured inference error handling
+4. Test concurrent requests
+5. Benchmark API latency and throughput
+6. Evaluate quantized serving configurations
+7. Add production monitoring and observability
+
+## Token Usage Accounting
+
+The API now returns real token usage from the active LLM backend in the OpenAI-style `usage` field.
+
+For the Transformers backend:
+
+- `prompt_tokens`: number of input tokens
+- `completion_tokens`: number of generated tokens
+- `total_tokens`: prompt tokens + completion tokens
+
+A real GPU-backed request using `Qwen/Qwen2.5-7B-Instruct` produced:
+
+- Prompt tokens: 41
+- Completion tokens: 96
+- Total tokens: 137
+- Generation latency: approximately 2.49 seconds
+
+The mock backend intentionally returns `null` token counts because it does not run a tokenizer or language model.
+
+This milestone provides usage metadata needed for observability, benchmarking, capacity planning, and future usage-based accounting.

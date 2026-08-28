@@ -82,9 +82,15 @@ def chat_completion(request: ChatCompletionRequest):
             }
         ],
         "usage": {
-            "prompt_tokens": None,
-            "completion_tokens": None,
-            "total_tokens": None,
+            "prompt_tokens": result["prompt_tokens"],
+            "completion_tokens": result["completion_tokens"],
+            "total_tokens": (
+                result["prompt_tokens"]
+                + result["completion_tokens"]
+                if result["prompt_tokens"] is not None
+                and result["completion_tokens"] is not None
+                else None
+            ),
         },
         "metrics": {
             "latency_seconds": round(

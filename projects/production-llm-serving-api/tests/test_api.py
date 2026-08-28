@@ -70,6 +70,10 @@ def test_chat_completion():
 
     assert data["metrics"]["backend"] == "mock"
 
+    assert data["usage"]["prompt_tokens"] is None
+    assert data["usage"]["completion_tokens"] is None
+    assert data["usage"]["total_tokens"] is None
+
 
 def test_invalid_max_tokens():
     response = client.post(
