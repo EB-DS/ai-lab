@@ -109,16 +109,23 @@ Generated response
 
 This is an important Project 2 milestone because the same API contract originally developed and tested with the mock backend now works with a real GPU-hosted language model.
 
-## Next Engineering Steps
+## Project Status
 
-The next milestones are:
+**Project 2 is complete.**
 
-1. Improve model readiness and startup handling
-2. Add structured inference error handling
-3. Test concurrent requests
-4. Benchmark API latency and throughput
-5. Evaluate quantized serving configurations
-6. Add production monitoring and observability
+The project delivers a production-style GPU LLM serving system with:
+
+- OpenAI-style chat completions
+- real token usage accounting
+- SSE streaming
+- configurable mock and Transformers backends
+- health and readiness endpoints
+- asynchronous model startup
+- automated API tests
+- real GPU-backed Qwen2.5-7B inference
+- concurrency and serving-performance evaluation
+
+The remaining production features such as dynamic batching, specialized inference engines, authentication, autoscaling, distributed serving, and advanced observability are intentionally outside the scope of this research project.
 
 ## Token Usage Accounting
 
@@ -151,6 +158,66 @@ The streaming architecture uses Hugging Face `TextIteratorStreamer` with model g
 
 A real GPU-backed streaming test was successfully completed with `Qwen/Qwen2.5-7B-Instruct`. The response arrived as multiple incremental content chunks and terminated with a final chunk containing `finish_reason: stop`, followed by the SSE marker `data: [DONE]`.
 
-Automated API coverage now includes streaming behavior, and the full test suite passes 6 tests.
+Automated API coverage now includes streaming behavior, and the full test suite passes 7 tests.
 
 This milestone reduces perceived response latency and establishes the foundation for interactive chat applications and production-compatible streaming clients.
+
+
+## Final Serving Experiment
+
+The final experiment evaluated `Qwen/Qwen2.5-7B-Instruct` in BF16 on an NVIDIA A40 GPU using the Transformers backend and FastAPI serving layer.
+
+The loaded model consumed approximately **14,983 MiB (14.63 GiB) of GPU memory**.
+
+A real API request produced 44 prompt tokens and 53 completion tokens with approximately **2.10 seconds** of reported generation latency.
+
+### Concurrency Benchmark
+
+Four requests were executed at each concurrency level.
+
+| Concurrency | Mean Client Latency (s) | Requests/s | Completion Tokens/s |
+|---:|---:|---:|---:|
+| 1 | 2.4464 | 0.4087 | 32.6983 |
+| 2 | 4.8147 | 0.4153 | 33.2238 |
+| 4 | 9.6798 | 0.4121 | 32.9678 |
+
+Increasing concurrency from 1 to 4 increased mean client latency from approximately **2.45 seconds to 9.68 seconds**, while aggregate throughput remained close to **0.41 requests/s** and **33 completion tokens/s**.
+
+This indicates that the current Transformers-based serving implementation does not gain meaningful throughput from additional concurrent requests under this workload. Requests contend for the same model-generation resources rather than benefiting from production-oriented techniques such as continuous or dynamic batching.
+
+The result demonstrates an important systems lesson: an asynchronous web API can accept concurrent requests, but that alone does not make underlying GPU inference scale concurrently.
+
+## Research Contribution
+
+Project 2 provides a compact, reproducible framework for studying the transition from local LLM inference to a measurable production-style service.
+
+The central research question is:
+
+> How does increasing request concurrency affect responsiveness, throughput, and GPU-resource behavior of a locally served 7B open-weight LLM?
+
+The experiment shows a clear latency-throughput trade-off in the tested architecture: higher concurrency substantially increases individual request latency without materially improving aggregate throughput.
+
+This complements Project 1, which focused on model-level benchmarking and quantization. Project 2 focuses instead on **system-level serving behavior**.
+
+## Limitations
+
+The benchmark is intentionally small and should be interpreted as a focused systems experiment rather than a large-scale production load test.
+
+Important limitations include:
+
+- results are specific to the NVIDIA A40 hardware and tested software environment;
+- only Qwen2.5-7B-Instruct BF16 was evaluated in the final concurrency experiment;
+- each concurrency level used four requests;
+- the backend uses Hugging Face Transformers rather than a specialized serving engine with continuous batching;
+- quantized serving was not included because quantization trade-offs were already investigated in Project 1;
+- advanced production infrastructure such as autoscaling, distributed inference, authentication, and monitoring was outside the project scope.
+
+## Conclusion
+
+Project 2 demonstrates the complete path from an open-weight language model to a tested GPU-backed API service.
+
+The system supports real inference, token accounting, streaming responses, readiness reporting, and concurrent client requests. The final A40 experiment shows that increasing client concurrency from 1 to 4 causes approximately proportional growth in request latency while aggregate throughput remains nearly constant.
+
+The main engineering finding is that **API concurrency and GPU inference scalability are different problems**. Efficient high-concurrency LLM serving requires inference-aware scheduling and batching rather than asynchronous HTTP handling alone.
+
+Together, Projects 1 and 2 establish the AI Lab foundation for evaluating, optimizing, and serving open-weight language models. Future domain projects can reuse this infrastructure rather than rebuilding the LLM stack.

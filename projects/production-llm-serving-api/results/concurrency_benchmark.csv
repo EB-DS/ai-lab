@@ -1,0 +1,4 @@
+concurrency,requests,mean_latency_seconds,wall_time_seconds,requests_per_second,completion_tokens_per_second
+1,4,2.4464,9.7864,0.4087,32.6983
+2,4,4.8147,9.6316,0.4153,33.2238
+4,4,9.6798,9.7064,0.4121,32.9678
