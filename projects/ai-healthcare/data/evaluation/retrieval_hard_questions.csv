@@ -1,0 +1,17 @@
+question_id,question,relevant_chunk_ids,topic,difficulty
+hard_diabetes_01,"Which condition describes blood glucose levels above normal but not yet diabetes, with increased risk of progressing to type 2 diabetes?","who_diabetes_chunk_006",diabetes,hard
+hard_diabetes_02,"Which drug classes are mentioned as options for helping people with type 2 diabetes manage blood sugar?","who_diabetes_chunk_007",diabetes,hard
+hard_diabetes_03,"Which warning signs include unusual thirst, frequent urination, blurred vision, fatigue, and unintended weight loss?","who_diabetes_chunk_003",diabetes,hard
+hard_diabetes_04,"Why can type 2 diabetes remain undetected until complications have already developed?","who_diabetes_chunk_004;who_diabetes_chunk_005",diabetes,hard
+hard_obesity_01,"What BMI thresholds does WHO use to distinguish overweight from obesity in adults?","who_obesity_chunk_002",obesity,hard
+hard_obesity_02,"Why is excess body weight described as a multifactorial condition rather than the result of a single cause?","who_obesity_chunk_005",obesity,hard
+hard_obesity_03,"Which noncommunicable diseases are associated with deaths attributable to higher-than-optimal BMI?","who_obesity_chunk_006",obesity,hard
+hard_obesity_04,"Why should preventing obesity be treated as a societal responsibility rather than relying only on individual choices?","who_obesity_chunk_012;who_obesity_chunk_013",obesity,hard
+hard_diet_01,"Which four principles define a healthy diet even when its exact composition varies across people and cultures?","who_healthy_diet_chunk_002;who_healthy_diet_chunk_003",healthy_diet,hard
+hard_diet_02,"What daily amount of fruits and vegetables is recommended for people older than 10 years?","who_healthy_diet_chunk_005",healthy_diet,hard
+hard_diet_03,"What is the recommended maximum daily salt intake for adults, expressed as both salt and sodium?","who_healthy_diet_chunk_012",healthy_diet,hard
+hard_diet_04,"Which types of fat are preferred, which should be limited, and which industrially produced fat should be avoided?","who_healthy_diet_chunk_008;who_healthy_diet_chunk_009",healthy_diet,hard
+hard_cvd_01,"Why is detecting cardiovascular disease early important for patient management?","who_cvd_chunk_001",cardiovascular_disease,hard
+hard_cvd_02,"What physical process commonly causes heart attacks and strokes by interrupting blood flow to the heart or brain?","who_cvd_chunk_002",cardiovascular_disease,hard
+hard_cvd_03,"Which sudden neurological warning signs can indicate a stroke, including problems with speech, vision, balance, or one-sided numbness?","who_cvd_chunk_004;who_cvd_chunk_005",cardiovascular_disease,hard
+hard_cvd_04,"Which behavioral changes involving tobacco, salt, diet, physical activity, and alcohol can lower cardiovascular risk?","who_cvd_chunk_003",cardiovascular_disease,hard
