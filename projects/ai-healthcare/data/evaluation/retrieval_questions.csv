@@ -1,0 +1,17 @@
+question_id,question,expected_document_id,topic
+cvd_01,"What are the main risk factors for cardiovascular disease?",who_cvd,cardiovascular_disease
+cvd_02,"What symptoms can indicate a heart attack or stroke?",who_cvd,cardiovascular_disease
+cvd_03,"What lifestyle changes can reduce the risk of cardiovascular disease?",who_cvd,cardiovascular_disease
+cvd_04,"Why is early detection of cardiovascular disease important?",who_cvd,cardiovascular_disease
+diabetes_01,"What are common symptoms of diabetes?",who_diabetes,diabetes
+diabetes_02,"What complications can result from diabetes?",who_diabetes,diabetes
+diabetes_03,"How can type 2 diabetes be prevented or delayed?",who_diabetes,diabetes
+diabetes_04,"Why is early diagnosis and treatment of diabetes important?",who_diabetes,diabetes
+diet_01,"What are the main principles of a healthy diet?",who_healthy_diet,healthy_diet
+diet_02,"Why is eating fruits and vegetables important for a healthy diet?",who_healthy_diet,healthy_diet
+diet_03,"Why should salt intake be limited?",who_healthy_diet,healthy_diet
+diet_04,"What types of dietary fats should be limited or avoided?",who_healthy_diet,healthy_diet
+obesity_01,"What health risks are associated with overweight and obesity?",who_obesity,obesity
+obesity_02,"What factors contribute to overweight and obesity?",who_obesity,obesity
+obesity_03,"How can overweight and obesity be prevented?",who_obesity,obesity
+obesity_04,"How are overweight and obesity commonly assessed in adults?",who_obesity,obesity
